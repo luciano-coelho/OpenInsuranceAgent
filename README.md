@@ -54,7 +54,7 @@ Ele opera sob um modelo de acoplamento dinâmico, aceitando qualquer provedor de
 
 - Ollama (modelos llama3, mistral, phi3);
 
-*Essa modularidade garante portabilidade, redundância e independência tecnológica, permitindo continuidade operacional mesmo diante de descontinuações de modelos.*
+Essa modularidade garante portabilidade, redundância e independência tecnológica, permitindo continuidade operacional mesmo diante de descontinuações de modelos.
 
 ### 2. Base Regulamentar
 
@@ -66,7 +66,7 @@ Ele opera sob um modelo de acoplamento dinâmico, aceitando qualquer provedor de
 
 - Manuais e guias publicados no Portal da SUSEP e no repositório público do Open Insurance Brasil.
 
-Esses materiais são armazenados localmente em /data/oi e ingeridos via scripts/ingest_local.py.
+Esses materiais são armazenados localmente em */data/oi* e ingeridos via *scripts/ingest_local.py*.
 
 ### 3. Ingestão e Indexação
 
@@ -138,7 +138,7 @@ python -m scripts.ask_oi "Quais são os requisitos de certificados para clientes
 
 - Disponibilidade e tempo de resposta das APIs conectadas.
 
-*Os experimentos são versionados via MLflow e avaliados sob metodologia A/B com diferentes LLMs.*
+Os experimentos são versionados via MLflow e avaliados sob metodologia A/B com diferentes LLMs.
 
 ## Configuração do Ambiente
 
@@ -157,7 +157,7 @@ Certifique-se de ter instalado:
 ### 2. Clonar o repositório
 
 ```bash
-git clone https://github.com/seuusuario/open-insurance-agent.git
+git clone https://github.com/luciano-coelho/OpenInsuranceAgent.git
 cd open-insurance-agent
 ```
 
@@ -211,13 +211,13 @@ Coloque os arquivos normativos e técnicos em:
 /data/oi/
 ```
 
-Suporta os formatos:
+**Suporta os formatos:**
 
 - .pdf
 - .txt
 - .md
 
-Exemplo:
+**Exemplo:**
 Circulares SUSEP, Resoluções CNSP, RDDs, perfis de segurança do Open Finance, etc.
 
 ### 7. Executar a ingestão de documentos
@@ -226,7 +226,7 @@ Circulares SUSEP, Resoluções CNSP, RDDs, perfis de segurança do Open Finance,
 python -m scripts.ingest_local
 ```
 
-Este comando irá:
+**Este comando irá:**
 
 - Ler e processar os documentos;
 
@@ -247,79 +247,7 @@ Exibe o total de vetores, status do índice e amostra de metadados armazenados.
 python -m scripts.ask_oi "Quais são os requisitos de certificados para clientes e servidores no Open Insurance Brasil?"
 ```
 
-### 10. Diferenciais Técnicos
-
-🔁 Modularidade
-
-O agente opera de forma LLM-agnóstica, podendo alternar dinamicamente entre provedores.
-O módulo de IA é acoplado via injeção de dependência, permitindo o uso de qualquer backend compatível com o formato OpenAI:
-
-```bash
-from app.agents.open_insurance_agent import OpenInsuranceAgent
-
-agent = OpenInsuranceAgent(model="gemini-2.0-pro", api_key="your_key")
-response = agent.ask("Explique a função do DCR no Open Insurance.")
-```
-
-📚 Base Regulamentar
-
-A base de conhecimento inclui:
-
-- Resoluções CMN nº 5.108/2023
-
-- Circulares SUSEP nº 635, 638 e 657/2022
-
-- Documentos técnicos RDD e FAPI Security Profile
-
-- Diretrizes de certificação e DCR (Dynamic Client Registration)
-
-🧠 Inteligência Auditável
-
-A solução combina:
-
-- RAG (Retrieval-Augmented Generation)
-
-- Embeddings regulatórios (HuggingFace)
-
-- Controle de rastreabilidade e explicabilidade
-
-- Logs de origem e metadados completos
-
-```bash
-“A solução proposta combina técnicas de RAG e embeddings regulatórios com modelos de linguagem auditáveis, oferecendo um protótipo inovador para análise automatizada e segura de normas do Open Insurance Brasil.”
-```
-
-🧾 Métricas e Observabilidade
-
-O sistema coleta métricas em tempo real via Prometheus e armazena experimentos com MLflow, medindo:
-
-- Latência média de resposta
-
-- Acurácia semântica (RAGAs)
-
-- Consumo de tokens e custo operacional
-
-- Desempenho por modelo LLM
-
-⚠️ Riscos e Limitações
-
-- A base deve ser atualizada periodicamente com novas normas e circulares.
-
-- O sistema depende de boas práticas de segurança e governança das APIs externas.
-
-- É necessária validação técnica pela SUSEP para uso institucional.
-
-📊 Resultados Esperados
-
-- Redução de erros humanos na interpretação de normas.
-
-- Aceleração de processos de conformidade e auditoria.
-
-- Transparência e reprodutibilidade nas respostas da IA.
-
-- Integração com o ecossistema Open Finance Brasil.
-
-👨‍💻 Autores e Colaboradores
+###  Autores e Colaboradores
 
 Luciano Coelho — Doutorando em Ciência da Computação (UFSC / LabSEC)
 
