@@ -269,3 +269,5 @@ Luciano Coelho — Doutorando em Ciência da Computação (UFSC / LabSEC)
 Prof. Ricardo Custódio — Orientador (UFSC / LabSEC)
 
 Manuel Matos — Coautor (Câmara e-net)
+
+Drª. Patricia Figueiredo - Seleção de documentos normativos (Open Power Corretora de Seguros SA)
