@@ -22,20 +22,33 @@ A iniciativa integra esforços de inovação regulatória, inteligência artific
 
 ## Arquitetura do Sistema
 
-O sistema é baseado em uma arquitetura RAG (Retrieval-Augmented Generation), permitindo que as respostas da IA sejam sempre fundamentadas em documentos oficiais.  
-
+O sistema é baseado em uma **arquitetura RAG (Retrieval-Augmented Generation)**, permitindo que as respostas da IA sejam sempre **fundamentadas em documentos oficiais**.  
 O fluxo completo é dividido em cinco camadas:
 
-    A["User Interface (CLI, API REST ou Chat Interface)"]
-      --> B["RAG Layer — Recuperação vetorial (Pinecone); Chunks semânticos (LangChain); Controle de contexto"]
-
-    B --> C["Embedding & LLM Layer — HuggingFace Embeddings; LLM Modular (Groq, Gemini, Ollama, OpenAI)"]
-
-    C --> D["Ingest Layer — Extração de PDFs/TXT/MD; Normalização SUSEP/Open Finance; Tokenização regulatória"]
-
-    D --> E["Monitoring Layer — Métricas (Prometheus); Avaliação (RAGAs + MLflow)"]
-
-
+```bash
+┌───────────────────────────────────────────────────────┐
+│                    User Interface                     │
+│     (CLI, API REST ou Chat Interface)                 │
+├───────────────────────────────────────────────────────┤
+│                        RAG Layer                      │
+│  • Recuperação vetorial (Pinecone)                    │
+│  • Chunks semânticos (LangChain)                      │
+│  • Controle de contexto e histórico de consultas       │
+├───────────────────────────────────────────────────────┤
+│                 Embedding & LLM Layer                 │
+│  • HuggingFace Embeddings                             │
+│  • LLM Modular (Groq, Gemini, Ollama, OpenAI, etc.)   │
+├───────────────────────────────────────────────────────┤
+│                     Ingest Layer                      │
+│  • Extração de dados de PDFs, TXT e MD                │
+│  • Normalização de documentos SUSEP/Open Finance      │
+│  • Tokenização e chunking regulatório                 │
+├───────────────────────────────────────────────────────┤
+│                   Monitoring Layer                    │
+│  • Métricas (Prometheus)                              │
+│  • Avaliação (RAGAs + MLflow)                         │
+└───────────────────────────────────────────────────────┘
+```
 
 ## Características Principais
 
