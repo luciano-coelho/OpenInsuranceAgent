@@ -1,0 +1,18 @@
+[
+  {
+    "question": "O que é o Open Insurance Brasil?",
+    "ideal_answer": "Iniciativa regulada pela SUSEP para padronizar e viabilizar o compartilhamento seguro de dados e serviços do mercado de seguros, com base em consentimento e APIs abertas."
+  },
+  {
+    "question": "Como é a autenticação entre participantes no Open Insurance?",
+    "ideal_answer": "Baseada em OpenID Connect com requisitos FAPI, uso de certificados digitais e validação no diretório de participantes."
+  },
+  {
+    "question": "O que é DCR no contexto do Open Insurance?",
+    "ideal_answer": "Dynamic Client Registration, processo de registro dinâmico e seguro de clientes para acesso às APIs, conforme diretrizes do ecossistema."
+  },
+  {
+    "question": "Quais os objetivos de segurança da informação no Open Insurance?",
+    "ideal_answer": "Garantir confidencialidade, integridade, autenticidade e disponibilidade no compartilhamento de dados e serviços entre os participantes."
+  }
+]
