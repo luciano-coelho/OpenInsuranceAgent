@@ -1,30 +1,26 @@
-import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    # LLM
-    groq_api_key: str | None = None
-    gen_model: str = "llama3-70b-8192"
+    # ---- Ollama / LLM ----
+    ollama_base_url: str = "http://localhost:11434"
+    llm_model: str = "llama3"
 
-    # Embeddings
-    embed_model: str = "all-MiniLM-L6-v2"
+    # ---- Embeddings ----
+    embed_model: str = "nomic-embed-text"
 
-    # Pinecone
-    pinecone_api_key: str | None = None
+    # ---- Pinecone ----
+    pinecone_api_key: str
     pinecone_environment: str = "us-east-1"
     pinecone_index_name: str = "open-insurance-index"
 
-    # RAG
+    # ---- RAG ----
     top_k: int = 5
     chunk_size: int = 600
     chunk_overlap: int = 80
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    class Config:
+        env_file = ".env"
+        extra = "ignore"  # ignora variáveis extras que não estão definidas no modelo
+
 
 settings = Settings()
-
-# Debug — imprime se as chaves principais foram lidas
-if not settings.pinecone_api_key:
-    print("PINECONE_API_KEY não encontrada. Verifique o arquivo .env.")
-else:
-    print("Pinecone key carregada com sucesso.")
