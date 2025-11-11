@@ -33,8 +33,8 @@ jobs:
       - name: Calcular Diff do PR
         id: get_diff
         run: |
-          DIFF_CONTENT=$(git diff origin/${{ github.base_ref }}...${{ github.head_ref }})          
-          TRUNCATED_DIFF=$(echo "$DIFF_CONTENT" | head -c 15000)  
+          DIFF_CONTENT=$(git diff origin/${{ github.base_ref }}...HEAD)          
+          TRUNCATED_DIFF=$(echo "$DIFF_CONTENT" | head -c 15000)
           echo "PR_DIFF<<EOF" >> $GITHUB_ENV
           echo "$TRUNCATED_DIFF" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
