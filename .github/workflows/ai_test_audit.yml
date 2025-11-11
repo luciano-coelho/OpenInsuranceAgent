@@ -48,6 +48,9 @@ jobs:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           PR_DIFF: ${{ env.PR_DIFF }}
         run: |
+          echo "DEBUG: Verificando variáveis de ambiente"
+          echo "AI_API_KEY está definida: $(if [ -n "$AI_API_KEY" ]; then echo 'SIM'; else echo 'NÃO'; fi)"
+          echo "PR_DIFF tem $(echo "$PR_DIFF" | wc -c) caracteres"
           RESPONSE=$(python .github/scripts/call_ai_model.py)
           echo "AI_RESPONSE<<EOF" >> $GITHUB_ENV
           echo "$RESPONSE" >> $GITHUB_ENV
