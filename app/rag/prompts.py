@@ -69,7 +69,7 @@ class PromptTemplates:
                 "Você é um assistente especializado em Open Insurance Brasil.\n"
                 "Contexto:\n{context}\n\n"
                 "Pergunta: {question}\n\n"
-                "Instruções: Responda em 2-3 frases curtas. Use apenas o contexto. Seja direto.\n"
+                "Instruções: Responda em 2-3 frases curtas. Use apenas o contexto. Seja direto, mas, sem deixar de ser claro.\n"
                 "Resposta:"
             ),
         )

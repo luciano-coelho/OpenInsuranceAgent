@@ -9,9 +9,7 @@ from app.core.config import settings
 app = FastAPI(
     title="Open Insurance Agent API",
     description="""
-    Um agente de IA modular e auditável para análise normativa do Open Insurance Brasil
-    
-    Repositório: https://github.com/luciano-coelho/OpenInsuranceAgent
+
     """,
     version="1.0.0",
     docs_url="/docs",
