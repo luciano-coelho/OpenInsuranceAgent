@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables (IMPORTANTE: protege API keys)
+.env
+.env.*
+!.env.example
+
+# Cache e modelos
+.cache/
+*.cache
+models/
+*.model
+*.bin
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+logs/
+
+# Data (documentos locais grandes)
+data/oi/*.pdf
+data/oi/*.docx
+data/oi/*.txt
+!data/oi/.gitkeep
+
+# Temporary
+*.tmp
+*.temp
+.pytest_cache/
+.coverage
+htmlcov/

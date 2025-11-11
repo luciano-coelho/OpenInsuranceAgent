@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/lucia_csx8nlz/Downloads/agents-groq/mlruns/0/5591088156844457b57d377d1d245ef7/artifacts
+end_time: 1762571949623
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5591088156844457b57d377d1d245ef7
+run_name: powerful-toad-579
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762571765259
+status: 3
+tags: []
+user_id: lucia_csx8nlz
