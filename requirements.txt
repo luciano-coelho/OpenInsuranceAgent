@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+python-multipart
 langchain
 langchain-community
 langchain-core
@@ -15,6 +16,7 @@ unstructured
 pypdf
 prometheus-client
 mlflow
+streamlit
 datasets
 ragas
 numpy

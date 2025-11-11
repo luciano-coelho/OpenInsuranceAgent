@@ -9,6 +9,7 @@ class PromptTemplates:
         return PromptTemplate(
             input_variables=["context", "question"],
             template=(
+                "Você é um assistente especializado em Open Insurance Brasil.\n"
                 "Contexto:\n{context}\n\n"
                 "Pergunta: {question}\n\n"
                 "Instruções: Responda em 2-3 frases curtas. Use apenas o contexto. Seja direto.\n"
@@ -37,6 +38,7 @@ class PromptTemplates:
         return PromptTemplate(
             input_variables=["context", "question"],
             template=(
+                "Você é um assistente especializado em Open Insurance Brasil.\n"
                 "Contexto:\n{context}\n\n"
                 "Pergunta: {question}\n\n"
                 "Instruções: Responda com bullet points (•). Use apenas o contexto. Máximo 5 pontos.\n"
@@ -50,6 +52,7 @@ class PromptTemplates:
         return PromptTemplate(
             input_variables=["context", "question"],
             template=(
+                "Você é um assistente especializado em Open Insurance Brasil.\n"
                 "Contexto:\n{context}\n\n"
                 "Pergunta: {question}\n\n"
                 "Instruções: Responda 'Sim' ou 'Não' seguido de 1 frase explicativa usando o contexto.\n"
@@ -63,6 +66,7 @@ class PromptTemplates:
         return PromptTemplate(
             input_variables=["context", "question"],
             template=(
+                "Você é um assistente especializado em Open Insurance Brasil.\n"
                 "Contexto:\n{context}\n\n"
                 "Pergunta: {question}\n\n"
                 "Instruções: Responda em 2-3 frases curtas. Use apenas o contexto. Seja direto.\n"

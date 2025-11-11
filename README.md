@@ -262,6 +262,167 @@ Exibe o total de vetores, status do índice e amostra de metadados armazenados.
 python -m scripts.ask_oi "Quais são os requisitos de certificados para clientes e servidores no Open Insurance Brasil?"
 ```
 
+---
+
+## 🌐 API REST (Swagger/OpenAPI)
+
+O sistema expõe uma **API REST completa** com documentação interativa Swagger.
+
+### Iniciar o servidor API
+
+```powershell
+python -m uvicorn main:app --reload --port 8000
+```
+
+Acesse a documentação interativa: **http://127.0.0.1:8000/docs**
+
+### Endpoints Disponíveis
+
+#### 📝 POST `/api/v1/ask` - Consultar agente
+Envia uma pergunta e recebe resposta fundamentada em documentos oficiais.
+
+**Request Body:**
+```json
+{
+  "question": "O que é Open Insurance?",
+  "prompt_style": "concise",
+  "return_contexts": true
+}
+```
+
+**Estilos de prompt:**
+- `concise`: Respostas objetivas em 2-3 frases (padrão)
+- `detailed`: Explicações detalhadas
+- `bullet_points`: Respostas em tópicos
+- `yes_no`: Respostas binárias com justificativa
+
+**Response:**
+```json
+{
+  "question": "O que é Open Insurance?",
+  "answer": "Open Insurance é um sistema...",
+  "model": "llama-3.3-70b-versatile",
+  "provider": "groq",
+  "latency_seconds": 2.34,
+  "contexts": [...],
+  "metadata": {...}
+}
+```
+
+#### 🏥 GET `/api/v1/health` - Health check
+Verifica status da API e serviços.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "vectorstore_ready": true,
+  "top_k": 7
+}
+```
+
+#### 📊 GET `/api/v1/metrics` - Métricas do sistema
+Retorna configurações e parâmetros do sistema.
+
+**Response:**
+```json
+{
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "pinecone_index": "open-insurance-index",
+  "top_k": 7,
+  "chunk_size": 800,
+  "use_mmr": true,
+  "temperature": 0.3,
+  "max_tokens": 300
+}
+```
+
+### Exemplo de uso com cURL
+
+```bash
+# Consultar agente
+curl -X POST "http://127.0.0.1:8000/api/v1/ask" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Quais são os requisitos de certificados?",
+    "prompt_style": "bullet_points",
+    "return_contexts": false
+  }'
+
+# Health check
+curl "http://127.0.0.1:8000/api/v1/health"
+
+# Métricas
+curl "http://127.0.0.1:8000/api/v1/metrics"
+```
+
+### 📤 POST `/api/v1/upload` - Upload de documentos
+
+Permite que a equipe faça upload de novos documentos oficiais. O sistema automaticamente:
+1. Valida o arquivo (formato e tamanho)
+2. Salva em `data/oi/`
+3. Processa (chunking + embeddings)
+4. Adiciona ao índice Pinecone
+
+**Formatos aceitos:** PDF, TXT, MD  
+**Tamanho máximo:** 50 MB
+
+**Exemplo com cURL:**
+```bash
+# Upload de arquivo
+curl -X POST "http://127.0.0.1:8000/api/v1/upload" \
+  -F "file=@circular_susep_123.pdf"
+```
+
+**Exemplo com Python:**
+```python
+import requests
+
+# Upload de documento
+with open("circular_susep_123.pdf", "rb") as f:
+    response = requests.post(
+        "http://127.0.0.1:8000/api/v1/upload",
+        files={"file": f}
+    )
+
+result = response.json()
+print(f"✅ {result['message']}")
+print(f"Chunks criados: {result['chunks_created']}")
+print(f"Tempo: {result['processing_time_seconds']}s")
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "filename": "circular_susep_123.pdf",
+  "file_path": "data/oi/circular_susep_123.pdf",
+  "file_size_bytes": 2458624,
+  "chunks_created": 45,
+  "vectors_added": 45,
+  "processing_time_seconds": 12.34,
+  "message": "Documento 'circular_susep_123.pdf' processado e adicionado ao índice Pinecone com sucesso!"
+}
+```
+
+### Recursos da API
+
+- ✅ **Documentação interativa** Swagger UI (`/docs`) e ReDoc (`/redoc`)
+- ✅ **Validação automática** de requests com Pydantic
+- ✅ **CORS habilitado** para integração com frontends
+- ✅ **Upload de documentos** com ingestão automática no Pinecone
+- ✅ **Múltiplos estilos de prompt** (concise, detailed, bullet_points, yes_no)
+- ✅ **Retorno opcional de contextos** recuperados do vectorstore
+- ✅ **Métricas de latência** em todas as respostas
+- ✅ **Health check** para monitoramento
+- ✅ **Endpoints versionados** (`/api/v1/`)
+
+---
+
 ###  Autores e Colaboradores
 
 Luciano Coelho — Doutorando em Ciência da Computação (UFSC / LabSEC)
