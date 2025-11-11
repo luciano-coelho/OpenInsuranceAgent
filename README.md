@@ -312,4 +312,4 @@ Prof. Ricardo Custódio — Orientador (UFSC / LabSEC)
 
 Manuel Matos — Coautor (Câmara e-net)
 
-Drª. Patricia Figueiredo - Seleção de documentos normativos (Open Power Corretora de Seguros SA)
+Drª. Priscila Figueiredo - Seleção de documentos normativos (Open Power Corretora de Seguros SA)
