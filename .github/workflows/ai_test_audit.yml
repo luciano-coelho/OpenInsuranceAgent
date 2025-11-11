@@ -47,7 +47,7 @@ jobs:
           # Passa o Secret do Groq para o script Python
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
         run: |
-          RESPONSE=$(python scripts/call_ai_model.py)
+          RESPONSE=$(python .github/scripts/call_ai_model.py)
           echo "AI_RESPONSE<<EOF" >> $GITHUB_ENV
           echo "$RESPONSE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
