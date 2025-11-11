@@ -1,5 +1,3 @@
-# scripts/call_ai_model.py
-
 import os
 import sys
 from groq import Groq
@@ -64,8 +62,8 @@ def main():
                     "content": user_prompt,
                 }
             ],
-            # Usamos o Llama 3 de 8B, que é extremamente rápido no Groq e ótimo para esta tarefa
-            model="llama3-8b-8192", 
+            # Usamos o Llama 3.3 70B, que é poderoso e ótimo para análise de código
+            model="llama-3.3-70b-versatile", 
         )
         
         # 4. Imprimir a resposta para o stdout
