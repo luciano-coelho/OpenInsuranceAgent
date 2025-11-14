@@ -64,7 +64,8 @@ def main():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            model="llama3-8b-8192", 
+            # Modelo atualizado (o anterior foi descontinuado)
+            model="llama-3.3-70b-versatile", 
         )
         response_text = chat_completion.choices[0].message.content
         print(response_text)
