@@ -27,7 +27,8 @@ def ingest_open_insurance_docs():
     logger.info(f"Chunks generated: {len(chunks)}")
 
     logger.info("Storing embeddings in Pinecone...")
-    vs = build_or_load_vectorstore(chunks)
+    # Build or update the vector store with the generated chunks
+    build_or_load_vectorstore(chunks)
 
     elapsed = round(perf_counter() - t0, 2)
     logger.info(f"Ingestion completed successfully in {elapsed}s!")

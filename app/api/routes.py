@@ -217,19 +217,24 @@ async def get_metrics():
 # ==================== UPLOAD MODELS ====================
 
 class UploadResponse(BaseModel):
-    """Response do upload e ingestão"""
-    success: bool = Field(..., description="Status do upload")
-    filename: str = Field(..., description="Nome do arquivo salvo")
-    file_path: str = Field(..., description="Caminho completo do arquivo")
-    file_size_bytes: int = Field(..., description="Tamanho do arquivo em bytes")
-    chunks_created: int = Field(..., description="Número de chunks gerados")
-    vectors_added: int = Field(..., description="Vetores adicionados ao Pinecone")
-    processing_time_seconds: float = Field(..., description="Tempo de processamento")
-    message: str = Field(..., description="Mensagem descritiva")
+    """Response model for upload and ingestion requests."""
+    success: bool = Field(..., description="Upload status")
+    filename: str = Field(..., description="Saved file name")
+    file_path: str = Field(..., description="Full path to the saved file")
+    file_size_bytes: int = Field(..., description="File size in bytes")
+    chunks_created: int = Field(..., description="Number of chunks generated")
+    vectors_added: int = Field(..., description="Vectors added to Pinecone")
+    processing_time_seconds: float = Field(..., description="Processing time in seconds")
+    message: str = Field(..., description="Descriptive message")
 
 
 # ==================== UPLOAD ENDPOINT ====================
 
+"""
+File upload settings:
+- ALLOWED_EXTENSIONS: Accepted file extensions for upload endpoints
+- UPLOAD_DIR: Directory where uploaded files are stored on disk
+"""
 ALLOWED_EXTENSIONS = {".pdf", ".txt", ".md"}
 UPLOAD_DIR = Path("data/oi")
 

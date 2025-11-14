@@ -13,8 +13,8 @@ def check_pinecone_status():
     os.environ["PINECONE_API_KEY"] = settings.pinecone_api_key
     os.environ["PINECONE_ENVIRONMENT"] = settings.pinecone_environment
 
-    pc = Pinecone(api_key=settings.pinecone_api_key)
-    indexes = pc.list_indexes()
+    pinecone_client = Pinecone(api_key=settings.pinecone_api_key)
+    indexes = pinecone_client.list_indexes()
 
     if not indexes:
         logger.warning("No indexes found.")
@@ -27,7 +27,7 @@ def check_pinecone_status():
 
     # Access the configured index
     index_name = settings.pinecone_index_name
-    index = pc.Index(index_name)
+    index = pinecone_client.Index(index_name)
 
     logger.info(f"\nChecking status of index '{index_name}'...")
     stats = index.describe_index_stats()

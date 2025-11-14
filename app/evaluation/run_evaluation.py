@@ -11,7 +11,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 
 if __name__ == "__main__":
-    vs = build_or_load_vectorstore()  # usa índice existente
+    # Load existing vectorstore index
+    vectorstore = build_or_load_vectorstore()
 
     with open("app/evaluation/evaluation.json", encoding="utf-8") as f:
         eval_rows = json.load(f)
@@ -21,11 +22,11 @@ if __name__ == "__main__":
 
     for row in eval_rows:
         q, ideal = row["question"], row["ideal_answer"]
-        ans, meta = answer_question(vs, q)
+        ans, meta = answer_question(vectorstore, q)
         ragas_rows.append({
             "question": q,
             "answer": ans,
-            "contexts": [],           # opcionalmente, logue os textos aqui
+            "contexts": [],           # optionally, log the retrieved texts here
             "ground_truth": ideal
         })
         total_latency += meta["latency"]
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         mlflow.log_param("top_k", settings.top_k)
         mlflow.log_param("num_questions", len(ragas_rows))
 
-        print("🔎 Avaliando com RAGAs (faithfulness)...")
+        print("Evaluating with RAGAs (faithfulness)...")
         t0 = time.perf_counter()
         results = evaluate(ds, metrics=[faithfulness], llm=judge_llm, embeddings=embedder)
         duration = round(time.perf_counter() - t0, 2)
@@ -55,5 +56,5 @@ if __name__ == "__main__":
             except Exception:
                 pass
 
-        print("✅ Resultados:", results)
-        print(f"⏱️ Latência média: {avg_latency}s | ⌛ Duração avaliação: {duration}s")
+        print("Results:", results)
+        print(f"Average latency: {avg_latency}s | ⌛ Evaluation duration: {duration}s")
