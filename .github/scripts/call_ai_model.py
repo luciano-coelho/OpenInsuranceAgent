@@ -2,7 +2,7 @@ import os
 import sys
 from groq import Groq
 
-# Groq model (updated; previous model deprecated)
+# Groq model
 MODEL_NAME = "llama-3.3-70b-versatile"
 
 # Prompt adicional para modo "audit" (sem persona explícita)
