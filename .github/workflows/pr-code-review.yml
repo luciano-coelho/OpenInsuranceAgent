@@ -36,28 +36,15 @@ jobs:
 
   # Job 2: Rodar Especialistas
   run-specialists:
-    runs-on: ubuntu-latest
     needs: sanitize-diff
     strategy:
       matrix:
         persona: [linter, logic, security]
-    steps:
-      - name: Chamar Especialista Reutilizável (${{ matrix.persona }})
-        id: analysis
-        uses: ./.github/workflows/reusable-ai-specialist.yml
-        with:
-          persona: ${{ matrix.persona }}
-          diff-artifact-name: ${{ needs.sanitize-diff.outputs.artifact-name }}
-      
-      - name: Salvar resultado em arquivo
-        run: |
-          echo "${{ steps.analysis.outputs.analysis-result }}" > "result-${{ matrix.persona }}.txt"
-
-      - name: Upload do Resultado (${{ matrix.persona }})
-        uses: actions/upload-artifact@v4
-        with:
-          name: "result-${{ matrix.persona }}-${{ github.run_id }}"
-          path: "result-${{ matrix.persona }}.txt"
+    uses: ./.github/workflows/reusable-ai-specialist.yml
+    with:
+      persona: ${{ matrix.persona }}
+      diff-artifact-name: ${{ needs.sanitize-diff.outputs.artifact-name }}
+    secrets: inherit
 
   # Job 3: Publicar Comentário
   publish-comment:
