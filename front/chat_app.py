@@ -28,6 +28,28 @@ def get_vectorstore():
 # ==================== SIDEBAR ====================
 
 with st.sidebar:
+    # Apply current language from session (if any) before rendering labels
+    if "lang" in st.session_state:
+        i18n.set_language(st.session_state["lang"])
+
+    # Language selector (persist in session state)
+    lang_display_to_code = {
+        i18n.t("language_pt_br"): "pt_BR",
+        i18n.t("language_en_us"): "en_US",
+    }
+    # Determine default index from session
+    current_lang = st.session_state.get("lang", "pt_BR")
+    default_index = 0 if current_lang == "pt_BR" else 1
+    selected_display = st.selectbox(
+        i18n.t("language_label"),
+        list(lang_display_to_code.keys()),
+        index=default_index
+    )
+    selected_lang = lang_display_to_code[selected_display]
+    if selected_lang != current_lang:
+        st.session_state["lang"] = selected_lang
+        i18n.set_language(selected_lang)
+
     st.title(i18n.t("sidebar_title"))
     
     st.markdown(i18n.t("llm_model_section"))

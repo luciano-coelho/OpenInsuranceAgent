@@ -16,6 +16,11 @@ style_bullet: "Lista com tópicos"
 style_yes_no: "Sim/Não (resposta direta)"
 show_contexts_label: "Mostrar contextos recuperados"
 
+# Language selector
+language_label: "Idioma"
+language_pt_br: "Português (Brasil)"
+language_en_us: "English (US)"
+
 rag_params_section: "### Parâmetros RAG"
 param_top_k: "Top K"
 param_chunk_size: "Chunk Size"

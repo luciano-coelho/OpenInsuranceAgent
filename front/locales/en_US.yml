@@ -16,6 +16,11 @@ style_bullet: "Bullet point list"
 style_yes_no: "Yes/No (direct answer)"
 show_contexts_label: "Show retrieved contexts"
 
+# Language selector
+language_label: "Language"
+language_pt_br: "Portuguese (Brazil)"
+language_en_us: "English (US)"
+
 rag_params_section: "### RAG Parameters"
 param_top_k: "Top K"
 param_chunk_size: "Chunk Size"
