@@ -43,16 +43,33 @@ jobs:
           name: ${{ inputs.diff-artifact-name }}
           path: ./diff-artifact
 
+      - name: Carregar Diff em variável de ambiente
+        run: |
+          DIFF_CONTENT=$(cat ./diff-artifact/sanitized_diff.txt)
+          echo "PR_DIFF<<EOF" >> $GITHUB_ENV
+          echo "$DIFF_CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Chamar Script Python (com Persona)
         id: ai_analysis
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          PR_DIFF: $(cat ./diff-artifact/sanitized_diff.txt)
+          PR_DIFF: ${{ env.PR_DIFF }}
         run: |
           # Chama o script passando a persona como argumento
-          RESPONSE=$(python scripts/call_ai_model.py ${{ inputs.persona }})
+          RESPONSE=$(python .github/scripts/call_ai_model.py ${{ inputs.persona }})
           
           # Salva a resposta como output do job
           echo "analysis<<EOF" >> $GITHUB_OUTPUT
           echo "$RESPONSE" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Salvar resposta em arquivo
+        run: |
+          echo "${{ steps.ai_analysis.outputs.analysis }}" > "result-${{ inputs.persona }}.txt"
+
+      - name: Upload do Resultado
+        uses: actions/upload-artifact@v4
+        with:
+          name: "result-${{ inputs.persona }}-${{ github.run_id }}"
+          path: "result-${{ inputs.persona }}.txt"
