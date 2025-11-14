@@ -22,8 +22,6 @@ jobs:
         run: |
           DIFF_CONTENT=$(git diff origin/${{ github.base_ref }}...HEAD)
           
-          # Aqui você colocaria seu script de Regex (sed/awk/python)
-          # Por enquanto, vamos apenas passar adiante
           SANITIZED_DIFF="$DIFF_CONTENT" 
           
           echo "$SANITIZED_DIFF" > sanitized_diff.txt
