@@ -4,21 +4,12 @@ from logging.handlers import RotatingFileHandler
 
 
 def _get_log_level() -> int:
-    """Resolve log level from env var LOG_LEVEL (default INFO)."""
     level_str = os.getenv("LOG_LEVEL", "INFO").upper()
     return getattr(logging, level_str, logging.INFO)
 
 
 def setup_logger(name: str = "open_insurance_agent") -> logging.Logger:
-    """
-    Create a production-friendly logger.
-
-    - Level controlled by LOG_LEVEL (default: INFO)
-    - Optional file rotation via LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT
-    - Console handler always enabled
-    - No propagation to root (prevents duplicate logs with Uvicorn/Gunicorn)
-    - Configurable format via LOG_FORMAT and LOG_DATEFMT
-    """
+    
     logger = logging.getLogger(name)
 
     # Prevent adding handlers twice (e.g., app reloads)
@@ -55,6 +46,5 @@ def setup_logger(name: str = "open_insurance_agent") -> logging.Logger:
     logger.propagate = False
     return logger
 
-
-# Shared application logger
 logger = setup_logger()
+
