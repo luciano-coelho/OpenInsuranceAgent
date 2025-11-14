@@ -1,0 +1,150 @@
+# .github/workflows/pr-code-review.yml
+name: Revisão de Código com IA
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  # Job 1: Sanitizar o Diff (O "Guarda-Costas")
+  sanitize-diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      # Expõe o nome do artefato para os próximos jobs
+      artifact-name: "sanitized-diff-${{ github.run_id }}"
+    steps:
+      - name: Checkout (Completo)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calcular e Sanatizar Diff
+        run: |
+          DIFF_CONTENT=$(git diff origin/${{ github.base_ref }}...${{ github.head_ref }})
+          
+          # Aqui você colocaria seu script de Regex (sed/awk/python)
+          # Por enquanto, vamos apenas passar adiante
+          SANITIZED_DIFF="$DIFF_CONTENT" 
+          
+          echo "$SANITIZED_DIFF" > sanitized_diff.txt
+
+      - name: Upload do Diff Sanitizado
+        uses: actions/upload-artifact@v4
+        with:
+          name: "sanitized-diff-${{ github.run_id }}"
+          path: sanitized_diff.txt
+
+  # Job 2: Rodar Especialistas (O "Comitê" - em paralelo)
+  run-specialists:
+    runs-on: ubuntu-latest
+    needs: sanitize-diff # Depende do Job 1
+    
+    # Estratégia de Matriz: Roda este job N vezes, uma para cada item
+    strategy:
+      matrix:
+        persona: [linter, logic, security] # Nossos 3 especialistas
+
+    steps:
+      - name: Chamar Especialista Reutilizável (${{ matrix.persona }})
+        id: analysis
+        uses: ./.github/workflows/reusable-ai-specialist.yml
+        with:
+          persona: ${{ matrix.persona }}
+          diff-artifact-name: ${{ needs.sanitize-diff.outputs.artifact-name }}
+      
+      # Cada especialista salva seu resultado em um artefato separado
+      - name: Salvar resultado (${{ matrix.persona }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: "result-${{ matrix.persona }}-${{ github.run_id }}"
+          path: |
+            ${{ steps.analysis.outputs.analysis-result }}
+        # Truque: O path aqui está usando o output direto, 
+        # mas uma forma mais robusta é salvar o output em um arquivo
+        # e fazer upload do arquivo. 
+        # Vamos simplificar por enquanto. (Correção abaixo)
+
+# --- CORREÇÃO DO PASSO ACIMA ---
+# O upload-artifact espera um ARQUIVO. O 'id: analysis' não cria um arquivo.
+# Precisamos adicionar um passo para criar o arquivo primeiro.
+
+# (Substitua o 'run-specialists' acima por este)
+
+  run-specialists:
+    runs-on: ubuntu-latest
+    needs: sanitize-diff
+    strategy:
+      matrix:
+        persona: [linter, logic, security]
+    steps:
+      - name: Chamar Especialista Reutilizável (${{ matrix.persona }})
+        id: analysis
+        uses: ./.github/workflows/reusable-ai-specialist.yml
+        with:
+          persona: ${{ matrix.persona }}
+          diff-artifact-name: ${{ needs.sanitize-diff.outputs.artifact-name }}
+      
+      - name: Salvar resultado em arquivo
+        run: |
+          echo "${{ steps.analysis.outputs.analysis-result }}" > "result-${{ matrix.persona }}.txt"
+
+      - name: Upload do Resultado (${{ matrix.persona }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: "result-${{ matrix.persona }}-${{ github.run_id }}"
+          path: "result-${{ matrix.persona }}.txt"
+
+  # Job 3: Publicar Comentário (O "Porta-Voz")
+  publish-comment:
+    runs-on: ubuntu-latest
+    needs: run-specialists # Roda APÓS todos os especialistas terminarem
+    permissions:
+      pull-requests: write # Permissão para comentar
+      contents: read
+    steps:
+      - name: Download de todos os resultados
+        uses: actions/download-artifact@v4
+        with:
+          # Baixa todos os artefatos que começam com "result-"
+          pattern: result-*-${{ github.run_id }}
+          path: ./all-results
+
+      - name: Compilar Comentário Final
+        id: compile
+        run: |
+          BODY="## 🤖 Revisão Completa da IA\n\n"
+          
+          if [ -f ./all-results/result-linter-${{ github.run_id }}/result-linter.txt ]; then
+            BODY="$BODY\n### 📝 Análise de Padrões (Linter)\n"
+            BODY="$BODY$(cat ./all-results/result-linter-${{ github.run_id }}/result-linter.txt)"
+          fi
+          
+          if [ -f ./all-results/result-logic-${{ github.run_id }}/result-logic.txt ]; then
+            BODY="$BODY\n\n### 🧠 Análise de Lógica\n"
+            BODY="$BODY$(cat ./all-results/result-logic-${{ github.run_id }}/result-logic.txt)"
+          fi
+          
+          if [ -f ./all-results/result-security-${{ github.run_id }}/result-security.txt ]; then
+            BODY="$BODY\n\n### 🛡️ Análise de Segurança\n"
+            BODY="$BODY$(cat ./all-results/result-security-${{ github.run_id }}/result-security.txt)"
+          fi
+
+          # Salva o corpo final para o próximo passo
+          echo "comment_body<<EOF" >> $GITHUB_ENV
+          echo "$BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Postar Comentário Único
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = process.env.comment_body;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });

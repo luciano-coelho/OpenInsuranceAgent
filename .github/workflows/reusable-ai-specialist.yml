@@ -1,0 +1,60 @@
+# .github/workflows/reusable-ai-specialist.yml
+name: Especialista de Análise de IA (Reutilizável)
+
+on:
+  workflow_call:
+    # 1. Entradas (Inputs) que esta "função" espera
+    inputs:
+      persona:
+        description: 'A persona da IA (linter, logic, security)'
+        required: true
+        type: string
+      diff-artifact-name:
+        description: 'O nome do artefato que contém o diff'
+        required: true
+        type: string
+        
+    # 2. Saídas (Outputs) que esta "função" retorna
+    outputs:
+      analysis-result:
+        description: "O texto puro da análise da IA"
+        value: ${{ jobs.run-ai-check.outputs.analysis-text }}
+
+jobs:
+  run-ai-check:
+    runs-on: ubuntu-latest
+    outputs:
+      analysis-text: ${{ steps.ai_analysis.outputs.analysis }}
+
+    steps:
+      - name: Checkout do Código (para pegar o script Python)
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Instalar Dependências
+        run: pip install -r requirements.txt
+
+      - name: Download do Diff Sanitizado
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.diff-artifact-name }}
+          path: ./diff-artifact # Baixa para este diretório
+
+      - name: Chamar Script Python (com Persona)
+        id: ai_analysis
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          # Lê o diff do arquivo baixado
+          PR_DIFF: $(cat ./diff-artifact/sanitized_diff.txt)
+        run: |
+          # Chama o script passando a persona como argumento
+          RESPONSE=$(python scripts/call_ai_model.py ${{ inputs.persona }})
+          
+          # Salva a resposta como output do job
+          echo "analysis<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT

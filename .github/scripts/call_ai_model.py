@@ -4,74 +4,75 @@ import os
 import sys
 from groq import Groq
 
+# 1. Defina seus "Especialistas" aqui
+PROMPT_PERSONAS = {
+    "linter": """
+    Contexto: Você é um Engenheiro de Software Sênior focado em padrões de código.
+    Tarefa: Analise o diff e verifique a aderência a padrões.
+    Regras:
+    1.  Idioma: TODO o código, comentários, e nomes de variáveis devem estar em Inglês.
+    2.  Padrão: O código segue as convenções do PEP 8.
+    Formato: Responda APENAS com as violações, linha por linha, ou "Nenhuma violação de padrão encontrada."
+    """,
+    
+    "logic": """
+    Contexto: Você é um Arquiteto de Software Sênior. Ignore estilo.
+    Tarefa: Encontrar fragilidades lógicas e bugs em potencial.
+    Procure por:
+    1.  Casos de Borda (Edge Cases) Não Tratados (null, listas vazias, negativos).
+    2.  Lógica complexa que pode ser simplificada.
+    Formato: Responda com um resumo dos riscos lógicos.
+    """,
+    
+    "security": """
+    Contexto: Você é um Analista de SecOps.
+    Tarefa: Encontrar vulnerabilidades e dados sensíveis.
+    Procure por:
+    1.  Vazamento de PII (CPF, E-mail, etc.).
+    2.  Vulnerabilidades comuns (SQL Injection, XSS, Hardcoding de Paths).
+    Formato: Responda APENAS com as falhas de segurança. Se nada for encontrado, responda "Nenhuma vulnerabilidade detectada."
+    """
+}
+
 def main():
-    # 1. Obter a API Key e o Diff das variáveis de ambiente
     try:
-        # Pega a chave do Secret do GitHub
-        api_key = os.environ["AI_API_KEY"]
+        api_key = os.environ["AI_API_KEY"] # Padronizado, ótimo!
+        diff_content = os.environ["PR_DIFF"]
+        
+        # 2. Recebe a persona como um argumento de linha de comando
+        persona_key = sys.argv[1] # ex: "linter"
+        
     except KeyError:
-        print("Erro Crítico: A variável de ambiente AI_API_KEY não foi definida.")
+        print("Erro Crítico: AI_API_KEY ou PR_DIFF não definidos.")
+        sys.exit(1)
+    except IndexError:
+        print("Erro Crítico: Nenhuma 'persona' (ex: linter, logic) foi fornecida ao script.")
         sys.exit(1)
 
-    diff_content = os.environ.get("PR_DIFF", "")
-
     if not diff_content.strip():
-        print("Diff vazio ou não fornecido. Nenhum código para analisar.")
-        sys.exit(0) # Termina com sucesso, mas sem ação
+        print("Diff vazio. Nada a analisar.")
+        sys.exit(0)
 
-    # 2. Montar o Prompt de Engenharia (dividido em System e User)
-    
-    # O 'system_prompt' define o papel da IA
-    system_prompt = """
-    Contexto: Você é um Engenheiro de Qualidade de Software (QA) Sênior e um especialista em testes unitários.
-    
-    Tarefa: Analise o 'git diff' de um Pull Request e forneça uma análise técnica focada em testes.
-    
-    Formato de Resposta:
-    A resposta DEVE ser em Markdown e seguir esta estrutura:
-    
-    **Resumo da Mudança:**
-    (Descreva brevemente a lógica principal que foi alterada ou adicionada.)
-    
-    **Pontos de Atenção e Riscos:**
-    (Identifique lógicas complexas, potenciais 'breaking changes' ou código sem tratamento de erros.)
-    
-    **Sugestões de Testes Unitários:**
-    (Liste casos de borda (edge cases) e cenários de teste que precisam ser cobertos. Se possível, sugira pseudocódigo para 2-3 testes.)
-    """
+    # 3. Seleciona o prompt de sistema correto
+    system_prompt = PROMPT_PERSONAS.get(persona_key)
+    if not system_prompt:
+        print(f"Erro: Persona '{persona_key}' desconhecida.")
+        sys.exit(1)
 
-    # O 'user_prompt' contém os dados específicos da tarefa
-    user_prompt = f"""
-    ---
-    **Git Diff para Análise:**
-    ```diff
-    {diff_content}
-    ```
-    """
+    user_prompt = f"--- Git Diff para Análise ---\n```diff\n{diff_content}\n```"
 
-    # 3. Chamar a API do Groq
+    # 4. Chamar a API do Groq (seu código atual)
     try:
         client = Groq(api_key=api_key)
-        
         chat_completion = client.chat.completions.create(
             messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt,
-                }
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
             ],
-            # Usamos o Llama 3 de 8B, que é extremamente rápido no Groq e ótimo para esta tarefa
             model="llama3-8b-8192", 
         )
-        
-        # 4. Imprimir a resposta para o stdout
-        # O GitHub Action irá capturar esta saída
         response_text = chat_completion.choices[0].message.content
-        print(response_text)
+        print(response_text) # Imprime o resultado para o workflow capturar
 
     except Exception as e:
         print(f"Erro ao contatar a API do Groq: {e}")
