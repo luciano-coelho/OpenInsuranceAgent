@@ -1,6 +1,6 @@
 from prometheus_client import Histogram, Counter
 
-# Prometheus metrics (names kept stable; descriptions in English for standardization)
+# Prometheus metrics
 LATENCY = Histogram("oi_agent_latency_seconds", "Agent response time in seconds")
 FALLBACKS = Counter("oi_agent_fallback_total", "Total responses that used a fallback")
 
