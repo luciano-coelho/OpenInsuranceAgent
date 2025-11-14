@@ -56,19 +56,13 @@ jobs:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           PR_DIFF: ${{ env.PR_DIFF }}
         run: |
-          # Chama o script passando a persona como argumento
-          RESPONSE=$(python .github/scripts/call_ai_model.py ${{ inputs.persona }})
+          # Chama o script passando a persona como argumento e salva direto no arquivo
+          python .github/scripts/call_ai_model.py ${{ inputs.persona }} > "result-${{ inputs.persona }}.txt"
           
-          # Salva a resposta como output do job
+          # Também salva como output do job para uso posterior
           echo "analysis<<EOF" >> $GITHUB_OUTPUT
-          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          cat "result-${{ inputs.persona }}.txt" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Salvar resposta em arquivo
-        run: |
-          cat > "result-${{ inputs.persona }}.txt" <<'EOF'
-          ${{ steps.ai_analysis.outputs.analysis }}
-          EOF
 
       - name: Upload do Resultado
         uses: actions/upload-artifact@v4
