@@ -1,0 +1,52 @@
+# Portuguese (Brazil) translations for Streamlit UI
+page_title: "Open Insurance Agent"
+page_subtitle: "Seu assistente de IA modular e auditável para análise normativa do Open Insurance Brasil"
+
+# Sidebar
+sidebar_title: "⚙️ Configurações"
+llm_model_section: "### Modelo LLM"
+llm_provider_label: "Provedor"
+llm_model_label: "Modelo"
+
+response_style_section: "### Estilo de Resposta"
+response_style_prompt: "Escolha como você quer sua resposta:"
+style_concise: "Resumido (2-3 frases)"
+style_detailed: "Detalhado (explicação completa)"
+style_bullet: "Lista com tópicos"
+style_yes_no: "Sim/Não (resposta direta)"
+show_contexts_label: "Mostrar contextos recuperados"
+
+rag_params_section: "### Parâmetros RAG"
+param_top_k: "Top K"
+param_chunk_size: "Chunk Size"
+param_temperature: "Temperature"
+param_max_tokens: "Max Tokens"
+
+upload_section: "### Upload de Documento"
+upload_prompt: "Adicione novos documentos para me deixar mais inteligente:"
+upload_help: "Faça upload de arquivos PDF, TXT ou MD para adicionar à base de conhecimento"
+upload_button: "Processar e Adicionar"
+upload_processing: "Adquirindo conhecimento..."
+upload_acquired: "Conhecimento adquirido: {filename}"
+upload_error_loading: "Não foi possível carregar o documento"
+upload_creating_chunks: "Criando chunks ({num_pages} páginas carregadas)..."
+upload_adding_chunks: "Adicionando {num_chunks} chunks ao Pinecone..."
+upload_success: "Obrigado. Você acaba de me deixar mais inteligente!"
+upload_stats_title: "**Estatísticas:**"
+upload_stats_file: "Arquivo"
+upload_stats_size: "Tamanho"
+upload_stats_pages: "Páginas"
+upload_stats_chunks: "Chunks criados"
+upload_error: "Erro ao processar: {error}"
+
+# Main chat
+chat_input_placeholder: "Faça sua pergunta sobre Open Insurance..."
+thinking: "Pensando..."
+contexts_expander: "📚 Ver contextos recuperados"
+context_label: "**Contexto {index}:**"
+context_source: "Fonte: {source}"
+latency_info: "Latência: {latency:.2f}s | {model}"
+error_processing: "Erro ao processar pergunta: {error}"
+
+# Footer
+footer_tip: "💡 **Dica:** Use o menu lateral para ajustar o estilo de resposta e fazer upload de novos documentos"
