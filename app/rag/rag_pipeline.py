@@ -9,17 +9,17 @@ def answer_question(
     return_contexts: bool = False,
     prompt_template=None,
 ):
-    """Executa o fluxo RAG e retorna a resposta e metadados.
+    """Run the RAG pipeline and return the answer and metadata.
 
-    Parâmetros:
-    - vectorstore: VectorStore para recuperação
-    - question: pergunta do usuário
-    - return_contexts: se True, devolve a lista de Document recuperados
-    - prompt_template: langchain PromptTemplate opcional; usa template conciso por padrão
+    Parameters:
+    - vectorstore: VectorStore to retrieve relevant chunks
+    - question: user question
+    - return_contexts: if True, include retrieved Documents in metadata
+    - prompt_template: optional LangChain PromptTemplate; uses the concise template by default
     """
     start = perf_counter()
 
-    # Resposta de identidade/manual para perguntas do tipo "quem é você"
+    # Manual identity response for "who are you"-type questions (Portuguese triggers supported)
     ql = (question or "").strip().lower()
     identity_triggers = [
         "quem é você", "quem é vc", "quem é voce", "quem é o agente", "quem é o bot",
@@ -36,7 +36,7 @@ def answer_question(
         metadata = {"latency": latency, "contexts": [] if return_contexts else None}
         return intro, metadata
 
-    # Recuperação de documentos (MMR opcional)
+    # Document retrieval (optional MMR)
     if getattr(settings, "use_mmr", False):
         docs = vectorstore.max_marginal_relevance_search(
             question,
@@ -48,7 +48,7 @@ def answer_question(
 
     context_text = "\n\n---\n\n".join([d.page_content for d in docs])
 
-    # Seleciona template padrão se não fornecido
+    # Select default template if none provided
     prompt_template = prompt_template or PromptTemplates.get_concise_rag_prompt()
     final_prompt = prompt_template.format(context=context_text, question=question)
 

@@ -4,14 +4,14 @@ from fastapi.responses import RedirectResponse
 from app.api.routes import router as api_router
 from app.core.config import settings
 
-# ==================== CONFIGURAÇÃO DA API ====================
+# ==================== API CONFIGURATION ====================
 
 app = FastAPI(
     title="Open Insurance Agent API",
     description="""
-    Um agente de IA modular e auditável para análise normativa do Open Insurance Brasil
-    
-    Repositório: https://github.com/luciano-coelho/OpenInsuranceAgent
+    A modular and auditable AI agent for regulatory analysis of Open Insurance Brazil.
+
+    Repository: https://github.com/luciano-coelho/OpenInsuranceAgent
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -19,31 +19,31 @@ app = FastAPI(
     openapi_tags=[
         {
             "name": "Open Insurance Agent",
-            "description": "Endpoints principais para consultas e informações do agente"
+            "description": "Primary endpoints for agent queries and information"
         },
         {
             "name": "System",
-            "description": "Endpoints de sistema (root, health, métricas)"
+            "description": "System endpoints (root, health, metrics)"
         }
     ]
 )
 
 # ==================== MIDDLEWARE ====================
 
-# CORS - Permitir requisições de diferentes origens
+# CORS - Allow requests from different origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar domínios permitidos
+    allow_origins=["*"],  # In production, specify allowed domains explicitly
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ==================== ROTAS PRINCIPAIS ====================
+# ==================== MAIN ROUTES ====================
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Redireciona para documentação Swagger"""
+    """Redirect to Swagger documentation."""
     return RedirectResponse(url="/docs")
 
 # Incluir rotas da API

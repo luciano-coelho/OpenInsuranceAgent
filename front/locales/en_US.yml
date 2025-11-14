@@ -1,0 +1,57 @@
+# English (United States) translations for Streamlit UI
+page_title: "Open Insurance Agent"
+page_subtitle: "Your modular and auditable AI assistant for Open Insurance Brazil regulatory analysis"
+
+# Sidebar
+sidebar_title: "⚙️ Settings"
+llm_model_section: "### LLM Model"
+llm_provider_label: "Provider"
+llm_model_label: "Model"
+
+response_style_section: "### Response Style"
+response_style_prompt: "Choose your desired response format:"
+style_concise: "Concise (2-3 sentences)"
+style_detailed: "Detailed (complete explanation)"
+style_bullet: "Bullet point list"
+style_yes_no: "Yes/No (direct answer)"
+show_contexts_label: "Show retrieved contexts"
+
+# Language selector
+language_label: "Language"
+language_pt_br: "Portuguese (Brazil)"
+language_en_us: "English (US)"
+
+rag_params_section: "### RAG Parameters"
+param_top_k: "Top K"
+param_chunk_size: "Chunk Size"
+param_temperature: "Temperature"
+param_max_tokens: "Max Tokens"
+
+upload_section: "### Document Upload"
+upload_prompt: "Add new documents to make me smarter:"
+upload_help: "Upload PDF, TXT, or MD files to add to the knowledge base"
+upload_button: "Process and Add"
+upload_processing: "Acquiring knowledge..."
+upload_acquired: "Knowledge acquired: {filename}"
+upload_error_loading: "Could not load the document"
+upload_creating_chunks: "Creating chunks ({num_pages} pages loaded)..."
+upload_adding_chunks: "Adding {num_chunks} chunks to Pinecone..."
+upload_success: "Thank you. You just made me smarter!"
+upload_stats_title: "**Statistics:**"
+upload_stats_file: "File"
+upload_stats_size: "Size"
+upload_stats_pages: "Pages"
+upload_stats_chunks: "Chunks created"
+upload_error: "Error processing: {error}"
+
+# Main chat
+chat_input_placeholder: "Ask your question about Open Insurance..."
+thinking: "Thinking..."
+contexts_expander: "📚 View retrieved contexts"
+context_label: "**Context {index}:**"
+context_source: "Source: {source}"
+latency_info: "Latency: {latency:.2f}s | {model}"
+error_processing: "Error processing question: {error}"
+
+# Footer
+footer_tip: "💡 **Tip:** Use the sidebar to adjust response style and upload new documents"

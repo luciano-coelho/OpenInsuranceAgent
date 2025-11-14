@@ -1,57 +1,59 @@
 import os
 from datetime import datetime
 from app.core.config import settings
+from app.core.logger import logger
 from pinecone import Pinecone
 
 
 def check_pinecone_status():
-    print("Conectando ao Pinecone...")
+    """Check Pinecone index status and display diagnostics."""
+    logger.info("Connecting to Pinecone...")
 
-    # Garantir que a key esteja disponível no ambiente
+    # Ensure API key is available in environment
     os.environ["PINECONE_API_KEY"] = settings.pinecone_api_key
     os.environ["PINECONE_ENVIRONMENT"] = settings.pinecone_environment
 
-    pc = Pinecone(api_key=settings.pinecone_api_key)
-    indexes = pc.list_indexes()
+    pinecone_client = Pinecone(api_key=settings.pinecone_api_key)
+    indexes = pinecone_client.list_indexes()
 
     if not indexes:
-        print("Nenhum índice encontrado.")
+        logger.warning("No indexes found.")
         return
 
-    print(f"\nÍndices disponíveis ({len(indexes)}):")
+    logger.info(f"\nAvailable indexes ({len(indexes)}):")
     for idx in indexes:
-        print(f"  • {idx['name']}  |  {idx['status']}  |  {idx['metric']}  |  Dimensão: {idx['dimension']}")
-    print("-" * 60)
+        logger.info(f"  • {idx['name']}  |  {idx['status']}  |  {idx['metric']}  |  Dimension: {idx['dimension']}")
+    logger.info("-" * 60)
 
-    # Acessa o índice configurado no projeto
+    # Access the configured index
     index_name = settings.pinecone_index_name
-    index = pc.Index(index_name)
+    index = pinecone_client.Index(index_name)
 
-    print(f"\n🔎 Verificando status do índice '{index_name}'...")
+    logger.info(f"\nChecking status of index '{index_name}'...")
     stats = index.describe_index_stats()
 
     total_vectors = stats.get("total_vector_count", 0)
     namespace_data = stats.get("namespaces", {})
     storage = sum(ns.get("vector_count", 0) for ns in namespace_data.values())
 
-    print(f"Vetores totais armazenados: {total_vectors:,}")
-    print(f"Uso total por namespaces: {storage:,}")
-    print(f"Verificado em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-    print("-" * 60)
+    logger.info(f"Total vectors stored: {total_vectors:,}")
+    logger.info(f"Total usage across namespaces: {storage:,}")
+    logger.info(f"Checked at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("-" * 60)
 
-    # Tenta coletar uma amostra de vetores (caso existam)
+    # Try to retrieve a sample vector
     try:
-        print("Recuperando amostra de vetores...")
+        logger.info("Retrieving sample vectors...")
         sample = index.query(vector=[0.0] * 384, top_k=1, include_metadata=True)
         if sample.get("matches"):
             meta = sample["matches"][0].get("metadata", {})
-            print(f"Exemplo de metadado armazenado: {meta}")
+            logger.info(f"Sample metadata stored: {meta}")
         else:
-            print("Nenhum metadado retornado (vetores podem estar em namespace diferente).")
+            logger.warning("No metadata returned (vectors may be in a different namespace).")
     except Exception as e:
-        print(f"Não foi possível recuperar amostra: {e}")
+        logger.error(f"Could not retrieve sample: {e}")
 
-    print("\nDiagnóstico concluído com sucesso.")
+    logger.info("\nDiagnostics completed successfully.")
 
 
 if __name__ == "__main__":

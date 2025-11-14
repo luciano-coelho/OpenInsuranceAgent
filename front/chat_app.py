@@ -7,82 +7,105 @@ from app.rag.rag_pipeline import answer_question
 from app.rag.prompts import PromptTemplates
 from app.rag.ingest import chunk_documents
 from app.core.config import settings
+from front.i18n import i18n
 
-# ==================== CONFIGURAÇÃO DA PÁGINA ====================
+# ==================== PAGE CONFIGURATION ====================
 
 st.set_page_config(
-    page_title="Open Insurance Agent",
+    page_title=i18n.t("page_title"),
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ==================== CACHE DO VECTORSTORE ====================
+# ==================== VECTORSTORE CACHE ====================
 
 @st.cache_resource
 def get_vectorstore():
-    """Carrega vectorstore com cache (evita recarregar a cada interação)"""
+    """Load vectorstore with cache (avoids reloading on each interaction)"""
     return build_or_load_vectorstore()
 
 # ==================== SIDEBAR ====================
 
 with st.sidebar:
-    st.title("⚙️ Configurações")
+    # Apply current language from session (if any) before rendering labels
+    if "lang" in st.session_state:
+        i18n.set_language(st.session_state["lang"])
+
+    # Language selector (persist in session state)
+    lang_display_to_code = {
+        i18n.t("language_pt_br"): "pt_BR",
+        i18n.t("language_en_us"): "en_US",
+    }
+    # Determine default index from session
+    current_lang = st.session_state.get("lang", "pt_BR")
+    default_index = 0 if current_lang == "pt_BR" else 1
+    selected_display = st.selectbox(
+        i18n.t("language_label"),
+        list(lang_display_to_code.keys()),
+        index=default_index
+    )
+    selected_lang = lang_display_to_code[selected_display]
+    if selected_lang != current_lang:
+        st.session_state["lang"] = selected_lang
+        i18n.set_language(selected_lang)
+
+    st.title(i18n.t("sidebar_title"))
     
-    st.markdown("### Modelo LLM")
-    st.info(f"**Provedor:** {settings.llm_provider.upper()}\n\n**Modelo:** {settings.llm_model}")
+    st.markdown(i18n.t("llm_model_section"))
+    st.info(f"**{i18n.t('llm_provider_label')}:** {settings.llm_provider.upper()}\n\n**{i18n.t('llm_model_label')}:** {settings.llm_model}")
     
-    st.markdown("### Estilo de Resposta")
+    st.markdown(i18n.t("response_style_section"))
     
     style_options = {
-        "Resumido (2-3 frases)": "concise",
-        "Detalhado (explicação completa)": "detailed",
-        "Lista com tópicos": "bullet_points",
-        "Sim/Não (resposta direta)": "yes_no"
+        i18n.t("style_concise"): "concise",
+        i18n.t("style_detailed"): "detailed",
+        i18n.t("style_bullet"): "bullet_points",
+        i18n.t("style_yes_no"): "yes_no"
     }
     
     selected_style = st.selectbox(
-        "Escolha como você quer sua resposta:",
+        i18n.t("response_style_prompt"),
         list(style_options.keys()),
         index=0
     )
     
     prompt_style = style_options[selected_style]
     
-    show_contexts = st.checkbox("Mostrar contextos recuperados", value=False)
+    show_contexts = st.checkbox(i18n.t("show_contexts_label"), value=False)
     
-    st.markdown("### Parâmetros RAG")
-    st.text(f"Top K: {settings.top_k}")
-    st.text(f"Chunk Size: {settings.chunk_size}")
-    st.text(f"Temperature: {settings.temperature}")
-    st.text(f"Max Tokens: {settings.max_tokens}")
+    st.markdown(i18n.t("rag_params_section"))
+    st.text(f"{i18n.t('param_top_k')}: {settings.top_k}")
+    st.text(f"{i18n.t('param_chunk_size')}: {settings.chunk_size}")
+    st.text(f"{i18n.t('param_temperature')}: {settings.temperature}")
+    st.text(f"{i18n.t('param_max_tokens')}: {settings.max_tokens}")
     
     st.markdown("---")
     
-    # Upload de documentos
-    st.markdown("### Upload de Documento")
+    # Document upload
+    st.markdown(i18n.t("upload_section"))
     uploaded_file = st.file_uploader(
-        "Adicione novos documentos para me deixar mais inteligente:",
+        i18n.t("upload_prompt"),
         type=["pdf", "txt", "md"],
-        help="Faça upload de arquivos PDF, TXT ou MD para adicionar à base de conhecimento"
+        help=i18n.t("upload_help")
     )
     
     if uploaded_file is not None:
-        if st.button("Processar e Adicionar"):
-            with st.spinner("Adquirindo conhecimento..."):
+        if st.button(i18n.t("upload_button")):
+            with st.spinner(i18n.t("upload_processing")):
                 try:
-                    # Criar diretório se não existir
+                    # Create directory if it doesn't exist
                     upload_dir = Path("data/oi")
                     upload_dir.mkdir(parents=True, exist_ok=True)
                     
-                    # Salvar arquivo
+                    # Save file
                     file_path = upload_dir / uploaded_file.name
                     with open(file_path, "wb") as f:
                         f.write(uploaded_file.getbuffer())
                     
-                    st.info(f"Conhecimento adquirido: {uploaded_file.name}")
+                    st.info(i18n.t("upload_acquired", filename=uploaded_file.name))
                     
-                    # Carregar documento
+                    # Load document
                     docs = []
                     file_ext = Path(uploaded_file.name).suffix.lower()
                     
@@ -94,75 +117,75 @@ with st.sidebar:
                         docs = TextLoader(str(file_path), encoding="utf-8").load()
                     
                     if not docs:
-                        st.error("Não foi possível carregar o documento")
+                        st.error(i18n.t("upload_error_loading"))
                     else:
                         # Chunking
-                        st.info(f"Criando chunks ({len(docs)} páginas carregadas)...")
+                        st.info(i18n.t("upload_creating_chunks", num_pages=len(docs)))
                         chunks = chunk_documents(docs)
                         
-                        # Adicionar ao Pinecone
-                        st.info(f"Adicionando {len(chunks)} chunks ao Pinecone...")
+                        # Add to Pinecone
+                        st.info(i18n.t("upload_adding_chunks", num_chunks=len(chunks)))
                         build_or_load_vectorstore(chunks)
                         
-                        # Limpar cache
+                        # Clear cache
                         st.cache_resource.clear()
                         
-                        st.success(f"Obrigado. Você acaba de me deixar mais inteligente!")
+                        st.success(i18n.t("upload_success"))
                         st.balloons()
                         
-                        # Informações do processamento
+                        # Processing information
                         st.markdown(f"""
-                        **Estatísticas:**
-                        - Arquivo: {uploaded_file.name}
-                        - Tamanho: {uploaded_file.size / 1024:.2f} KB
-                        - Páginas: {len(docs)}
-                        - Chunks criados: {len(chunks)}
+                        {i18n.t("upload_stats_title")}
+                        - {i18n.t("upload_stats_file")}: {uploaded_file.name}
+                        - {i18n.t("upload_stats_size")}: {uploaded_file.size / 1024:.2f} KB
+                        - {i18n.t("upload_stats_pages")}: {len(docs)}
+                        - {i18n.t("upload_stats_chunks")}: {len(chunks)}
                         """)
                         
                 except Exception as e:
-                    st.error(f"Erro ao processar: {str(e)}")
+                    st.error(i18n.t("upload_error", error=str(e)))
 
 # ==================== MAIN ====================
 
-st.title("🛡️ Open Insurance Agent")
-st.markdown("*Seu assistente de IA modular e auditável para análise normativa do Open Insurance Brasil*")
+st.title(f"🛡️ {i18n.t('page_title')}")
+st.markdown(f"*{i18n.t('page_subtitle')}*")
 
-# Inicializar histórico de mensagens
+# Initialize message history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Exibir mensagens do histórico
+# Display message history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
         
-        # Mostrar contextos se disponíveis
+        # Show contexts if available
         if "contexts" in message and message["contexts"]:
-            with st.expander("📚 Ver contextos recuperados"):
+            with st.expander(i18n.t("contexts_expander")):
                 for i, ctx in enumerate(message["contexts"], 1):
-                    st.markdown(f"**Contexto {i}:**")
+                    st.markdown(i18n.t("context_label", index=i))
                     st.text(ctx.page_content[:300] + "...")
-                    st.caption(f"Fonte: {ctx.metadata.get('source', 'N/A')}")
+                    st.caption(i18n.t("context_source", source=ctx.metadata.get('source', 'N/A')))
                     st.markdown("---")
 
-# Input do usuário
-if question := st.chat_input("Faça sua pergunta sobre Open Insurance..."):
-    # Adicionar pergunta ao histórico
+# User input
+if question := st.chat_input(i18n.t("chat_input_placeholder")):
+    # Add question to history
     st.session_state.messages.append({"role": "user", "content": question})
     
-    # Exibir pergunta
+    # Display question
     with st.chat_message("user"):
         st.markdown(question)
 
 
-    # Gerar resposta
+    # Generate response
     with st.chat_message("assistant"):
-        with st.spinner("Pensando..."):
+        with st.spinner(i18n.t("thinking")):
             try:
-                # Carregar vectorstore
+                # Load vectorstore
                 vectorstore = get_vectorstore()
                 
-                # Selecionar prompt
+                # Select prompt
                 prompt_map = {
                     "concise": PromptTemplates.get_concise_rag_prompt(),
                     "detailed": PromptTemplates.get_detailed_rag_prompt(),
@@ -171,7 +194,7 @@ if question := st.chat_input("Faça sua pergunta sobre Open Insurance..."):
                 }
                 prompt_template = prompt_map[prompt_style]
                 
-                # Executar RAG
+                # Execute RAG
                 start_time = time.time()
                 answer, metadata = answer_question(
                     vectorstore=vectorstore,
@@ -181,21 +204,21 @@ if question := st.chat_input("Faça sua pergunta sobre Open Insurance..."):
                 )
                 latency = time.time() - start_time
                 
-                # Exibir resposta
+                # Display response
                 st.markdown(answer)
-                st.caption(f"Latência: {latency:.2f}s | {settings.llm_model}")
+                st.caption(i18n.t("latency_info", latency=latency, model=settings.llm_model))
                 
-                # Mostrar contextos se solicitado
+                # Show contexts if requested
                 contexts = metadata.get("contexts", [])
                 if show_contexts and contexts:
-                    with st.expander("Ver contextos recuperados"):
+                    with st.expander(i18n.t("contexts_expander")):
                         for i, ctx in enumerate(contexts, 1):
-                            st.markdown(f"**Contexto {i}:**")
+                            st.markdown(i18n.t("context_label", index=i))
                             st.text(ctx.page_content[:300] + "...")
-                            st.caption(f"Fonte: {ctx.metadata.get('source', 'N/A')}")
+                            st.caption(i18n.t("context_source", source=ctx.metadata.get('source', 'N/A')))
                             st.markdown("---")
                 
-                # Adicionar resposta ao histórico
+                # Add response to history
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": answer,
@@ -203,8 +226,8 @@ if question := st.chat_input("Faça sua pergunta sobre Open Insurance..."):
                 })
                 
             except Exception as e:
-                st.error(f"Erro ao processar pergunta: {str(e)}")
+                st.error(i18n.t("error_processing", error=str(e)))
 
 # Footer
 st.markdown("---")
-st.markdown("💡 **Dica:** Use o menu lateral para ajustar o estilo de resposta e fazer upload de novos documentos")
+st.markdown(i18n.t("footer_tip"))
