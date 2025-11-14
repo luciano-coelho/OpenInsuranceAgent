@@ -1,9 +1,8 @@
-# .github/workflows/reusable-ai-specialist.yml
 name: Especialista de Análise de IA (Reutilizável)
 
 on:
   workflow_call:
-    # 1. Entradas (Inputs) que esta "função" espera
+    # 1. Entradas (Inputs)
     inputs:
       persona:
         description: 'A persona da IA (linter, logic, security)'
@@ -14,7 +13,7 @@ on:
         required: true
         type: string
         
-    # 2. Saídas (Outputs) que esta "função" retorna
+    # 2. Saídas (Outputs)
     outputs:
       analysis-result:
         description: "O texto puro da análise da IA"
@@ -42,13 +41,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.diff-artifact-name }}
-          path: ./diff-artifact # Baixa para este diretório
+          path: ./diff-artifact
 
       - name: Chamar Script Python (com Persona)
         id: ai_analysis
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          # Lê o diff do arquivo baixado
           PR_DIFF: $(cat ./diff-artifact/sanitized_diff.txt)
         run: |
           # Chama o script passando a persona como argumento

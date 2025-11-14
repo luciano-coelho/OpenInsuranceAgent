@@ -1,10 +1,7 @@
-# scripts/call_ai_model.py
-
 import os
 import sys
 from groq import Groq
 
-# 1. Defina seus "Especialistas" aqui
 PROMPT_PERSONAS = {
     "linter": """
     Contexto: Você é um Engenheiro de Software Sênior focado em padrões de código.
@@ -36,11 +33,10 @@ PROMPT_PERSONAS = {
 
 def main():
     try:
-        api_key = os.environ["AI_API_KEY"] # Padronizado, ótimo!
+        api_key = os.environ["AI_API_KEY"]
         diff_content = os.environ["PR_DIFF"]
         
-        # 2. Recebe a persona como um argumento de linha de comando
-        persona_key = sys.argv[1] # ex: "linter"
+        persona_key = sys.argv[1]
         
     except KeyError:
         print("Erro Crítico: AI_API_KEY ou PR_DIFF não definidos.")
@@ -50,10 +46,10 @@ def main():
         sys.exit(1)
 
     if not diff_content.strip():
-        print("Diff vazio. Nada a analisar.")
+        print("Diff vazio.")
         sys.exit(0)
 
-    # 3. Seleciona o prompt de sistema correto
+    # Seleciona o prompt de sistema correto
     system_prompt = PROMPT_PERSONAS.get(persona_key)
     if not system_prompt:
         print(f"Erro: Persona '{persona_key}' desconhecida.")
@@ -61,7 +57,6 @@ def main():
 
     user_prompt = f"--- Git Diff para Análise ---\n```diff\n{diff_content}\n```"
 
-    # 4. Chamar a API do Groq (seu código atual)
     try:
         client = Groq(api_key=api_key)
         chat_completion = client.chat.completions.create(
@@ -72,7 +67,7 @@ def main():
             model="llama3-8b-8192", 
         )
         response_text = chat_completion.choices[0].message.content
-        print(response_text) # Imprime o resultado para o workflow capturar
+        print(response_text)
 
     except Exception as e:
         print(f"Erro ao contatar a API do Groq: {e}")
