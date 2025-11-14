@@ -85,27 +85,27 @@ class MetricsResponse(BaseModel):
 
 # ==================== ENDPOINTS ====================
 
-@router.post("/ask", response_model=QuestionResponse, summary="Consultar agente Open Insurance")
+@router.post("/ask", response_model=QuestionResponse, summary="Query Open Insurance Agent")
 async def ask_question(
     request: QuestionRequest,
     vectorstore = Depends(get_vectorstore)
 ):
     """
-    **Consulta o agente especializado em Open Insurance Brasil**
+    **Query the specialized Open Insurance Brasil agent**
     
-    Recebe uma pergunta e retorna uma resposta fundamentada em documentos oficiais da SUSEP,
-    utilizando técnicas de RAG (Retrieval-Augmented Generation).
+    Receives a question and returns an answer grounded in official SUSEP documents,
+    using RAG (Retrieval-Augmented Generation) techniques.
     
-    **Estilos de prompt disponíveis:**
-    - `concise`: Respostas objetivas em 2-3 frases (padrão)
-    - `detailed`: Explicações detalhadas e completas
-    - `bullet_points`: Respostas estruturadas em tópicos
-    - `yes_no`: Respostas binárias com justificativa breve
+    **Available prompt styles:**
+    - `concise`: Brief answers in 2-3 sentences (default)
+    - `detailed`: Detailed and complete explanations
+    - `bullet_points`: Structured responses in bullet points
+    - `yes_no`: Binary answers with brief justification
     
-    **Exemplo de uso:**
+    **Usage example:**
     ```json
     {
-      "question": "O que é Open Insurance?",
+      "question": "What is Open Insurance?",
       "prompt_style": "concise",
       "return_contexts": true
     }
@@ -165,12 +165,12 @@ async def ask_question(
         raise HTTPException(status_code=500, detail=f"Erro ao processar pergunta: {str(e)}")
 
 
-@router.get("/health", response_model=HealthResponse, summary="Health check da API")
+@router.get("/health", response_model=HealthResponse, summary="API health check")
 async def health_check():
     """
-    **Verifica o status de saúde da API**
+    **Check the health status of the API**
     
-    Retorna informações sobre a configuração atual e disponibilidade dos serviços.
+    Returns information about current configuration and service availability.
     """
     try:
         vectorstore = get_vectorstore()
@@ -193,12 +193,12 @@ async def health_check():
         )
 
 
-@router.get("/metrics", response_model=MetricsResponse, summary="Obter métricas do sistema")
+@router.get("/metrics", response_model=MetricsResponse, summary="Get system metrics")
 async def get_metrics():
     """
-    **Retorna métricas e configurações do sistema**
+    **Return system metrics and configurations**
     
-    Informações sobre modelos, embeddings, configuração RAG e parâmetros de otimização.
+    Information about models, embeddings, RAG configuration, and optimization parameters.
     """
     return MetricsResponse(
         provider=settings.llm_provider,
@@ -233,44 +233,44 @@ class UploadResponse(BaseModel):
 ALLOWED_EXTENSIONS = {".pdf", ".txt", ".md"}
 UPLOAD_DIR = Path("data/oi")
 
-@router.post("/upload", response_model=UploadResponse, summary="Upload e ingestão de documentos")
+@router.post("/upload", response_model=UploadResponse, summary="Upload and ingest documents")
 async def upload_document(
-    file: UploadFile = File(..., description="Arquivo para upload (PDF, TXT ou MD)")
+    file: UploadFile = File(..., description="File to upload (PDF, TXT, or MD)")
 ):
     """
-    **Upload de novos documentos para o sistema Open Insurance**
+    **Upload new documents to the Open Insurance system**
     
-    Este endpoint permite que a equipe faça upload de novos documentos oficiais da SUSEP/OPIN.
-    O arquivo será:
-    1. Validado (formato e tamanho)
-    2. Salvo em `data/oi/`
-    3. Processado (chunking + embeddings)
-    4. Adicionado ao índice Pinecone
+    This endpoint allows the team to upload new official SUSEP/OPIN documents.
+    The file will be:
+    1. Validated (format and size)
+    2. Saved to `data/oi/`
+    3. Processed (chunking + embeddings)
+    4. Added to the Pinecone index
     
-    **Formatos aceitos:** PDF, TXT, MD
+    **Accepted formats:** PDF, TXT, MD
     
-    **Tamanho máximo:** 50 MB
+    **Maximum size:** 50 MB
     
-    **Exemplo de uso:**
+    **Usage example:**
     ```bash
     curl -X POST "http://127.0.0.1:8000/api/v1/upload" \\
       -F "file=@circular_susep_123.pdf"
     ```
     
-    **Nota:** O processo de ingestão pode levar alguns segundos dependendo do tamanho do arquivo.
+    **Note:** The ingestion process may take a few seconds depending on the file size.
     """
     start_time = time.time()
     
     try:
-        # Validar extensão do arquivo
+        # Validate file extension
         file_ext = Path(file.filename).suffix.lower()
         if file_ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(
                 status_code=400,
-                detail=f"Formato não suportado. Use: {', '.join(ALLOWED_EXTENSIONS)}"
+                detail=f"Unsupported format. Use: {', '.join(ALLOWED_EXTENSIONS)}"
             )
         
-        # Validar tamanho (máximo 50 MB)
+        # Validate size (maximum 50 MB)
         content = await file.read()
         file_size = len(content)
         max_size = 50 * 1024 * 1024  # 50 MB
@@ -278,19 +278,19 @@ async def upload_document(
         if file_size > max_size:
             raise HTTPException(
                 status_code=400,
-                detail=f"Arquivo muito grande. Tamanho máximo: 50 MB"
+                detail=f"File too large. Maximum size: 50 MB"
             )
         
-        # Criar diretório se não existir
+        # Create directory if it doesn't exist
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
         
-        # Sanitizar nome do arquivo
+        # Sanitize filename
         safe_filename = "".join(c for c in file.filename if c.isalnum() or c in "._- ").strip()
         file_path = UPLOAD_DIR / safe_filename
         
-        # Verificar se arquivo já existe
+        # Check if file already exists
         if file_path.exists():
-            # Adicionar timestamp ao nome
+            # Add timestamp to name
             timestamp = int(time.time())
             name_parts = safe_filename.rsplit(".", 1)
             if len(name_parts) == 2:
@@ -299,23 +299,23 @@ async def upload_document(
                 safe_filename = f"{safe_filename}_{timestamp}"
             file_path = UPLOAD_DIR / safe_filename
         
-        # Salvar arquivo
+        # Save file
         with open(file_path, "wb") as f:
             f.write(content)
         
-        print(f"📄 Arquivo salvo: {file_path}")
+        print(f"📄 File saved: {file_path}")
         
-        # Processar documento (ingestão) - carregar arquivo específico
-        print("📚 Carregando documento...")
+        # Process document (ingestion) - load specific file
+        print("📚 Loading document...")
         docs = []
         
         try:
             if file_ext == ".pdf":
                 from langchain_community.document_loaders import PyPDFLoader
-                print(f"🔍 Tentando carregar PDF: {file_path}")
+                print(f"🔍 Trying to load PDF: {file_path}")
                 loader = PyPDFLoader(str(file_path))
                 docs = loader.load()
-                print(f"✅ PDF carregado com {len(docs)} páginas")
+                print(f"✅ PDF loaded with {len(docs)} pages")
             elif file_ext == ".md":
                 from langchain_community.document_loaders import UnstructuredMarkdownLoader
                 docs = UnstructuredMarkdownLoader(str(file_path)).load()
@@ -323,39 +323,39 @@ async def upload_document(
                 from langchain_community.document_loaders import TextLoader
                 docs = TextLoader(str(file_path), encoding="utf-8").load()
         except Exception as e:
-            # Limpar arquivo em caso de erro
-            print(f"❌ Erro ao carregar: {str(e)}")
-            print(f"❌ Tipo do erro: {type(e).__name__}")
+            # Clean up file on error
+            print(f"❌ Error loading: {str(e)}")
+            print(f"❌ Error type: {type(e).__name__}")
             import traceback
             traceback.print_exc()
             file_path.unlink()
             raise HTTPException(
                 status_code=400,
-                detail=f"Erro ao carregar documento: {str(e)}"
+                detail=f"Error loading document: {str(e)}"
             )
         
         if not docs:
-            # Limpar arquivo se não foi possível carregar
+            # Clean up file if loading failed
             file_path.unlink()
             raise HTTPException(
                 status_code=400,
-                detail="Documento vazio ou formato não suportado."
+                detail="Empty document or unsupported format."
             )
         
-        print(f"✂️ Criando chunks (docs carregados: {len(docs)})...")
+        print(f"✂️ Creating chunks (docs loaded: {len(docs)})...")
         chunks = chunk_documents(docs)
         chunks_count = len(chunks)
         
-        print(f"🔄 Adicionando {chunks_count} chunks ao Pinecone...")
+        print(f"🔄 Adding {chunks_count} chunks to Pinecone...")
         vectorstore = build_or_load_vectorstore(chunks)
         
-        # Limpar cache do vectorstore na API
+        # Clear vectorstore cache in API
         global _vectorstore_cache
         _vectorstore_cache = None
         
         processing_time = time.time() - start_time
         
-        print(f"✅ Ingestão concluída em {processing_time:.2f}s")
+        print(f"✅ Ingestion completed in {processing_time:.2f}s")
         
         return UploadResponse(
             success=True,
@@ -363,15 +363,15 @@ async def upload_document(
             file_path=str(file_path),
             file_size_bytes=file_size,
             chunks_created=chunks_count,
-            vectors_added=chunks_count,  # Cada chunk = 1 vetor
+            vectors_added=chunks_count,  # Each chunk = 1 vector
             processing_time_seconds=round(processing_time, 2),
-            message="Obrigado. Você acaba de me deixar mais inteligente!"
+            message="Thank you. You just made me smarter!"
         )
         
     except HTTPException:
         raise
     except Exception as e:
-        # Tentar limpar arquivo em caso de erro
+        # Try to clean up file on error
         if 'file_path' in locals() and file_path.exists():
             try:
                 file_path.unlink()
@@ -380,5 +380,5 @@ async def upload_document(
         
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao processar upload: {str(e)}"
+            detail=f"Error processing upload: {str(e)}"
         )
