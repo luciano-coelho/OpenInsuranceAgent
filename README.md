@@ -141,7 +141,33 @@ python -m scripts.ask_oi "Quais são os requisitos de certificados para clientes
 
 *O uso institucional requer validação prévia da SUSEP e acompanhamento técnico de conformidade.*
 
-### 7. Métricas e Observabilidade
+### 7. Pipeline de Qualidade e Segurança Automatizado
+
+**O projeto conta com um pipeline de CI/CD inteligente que garante a qualidade, segurança e conformidade do código em cada Pull Request.**
+
+A cada mudança proposta, o sistema executa automaticamente:
+
+- **Análise de Padrões (Linter)**: Verifica aderência ao PEP 8, nomenclaturas em inglês e boas práticas de código;
+
+- **Análise de Lógica**: Identifica casos de borda não tratados, potenciais bugs e oportunidades de simplificação;
+
+- **Análise de Segurança**: Detecta vulnerabilidades, vazamento de dados sensíveis (PII) e práticas inseguras (hardcoded paths, injection risks);
+
+- **Auditoria Consolidada**: Gera um relatório estruturado em Markdown com resumo, riscos identificados e recomendações categorizadas.
+
+**Características do Pipeline:**
+
+- Análise multi-perspectiva executada em paralelo por especialistas de IA independentes;
+
+- Comentários automáticos no PR consolidando as três análises em formato legível;
+
+- Rastreabilidade completa via artefatos do GitHub Actions;
+
+- Integração com segredos seguros (AI_API_KEY) e sanitização de diff antes da análise.
+
+Esse fluxo automatizado fortalece a confiabilidade do código, reduz erros humanos e acelera a revisão técnica, mantendo altos padrões de segurança e qualidade ao longo do desenvolvimento.
+
+### 8. Métricas e Observabilidade
 
 **O agente coleta métricas em tempo real via Prometheus, permitindo monitorar:**
 

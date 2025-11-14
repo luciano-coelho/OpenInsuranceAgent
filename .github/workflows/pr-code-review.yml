@@ -61,27 +61,37 @@ jobs:
       - name: Compilar Comentário Final
         id: compile
         run: |
-          BODY="##Revisão Completa do Especialista\n\n"
+          # Cria arquivo temporário para montar o comentário
+          cat > comment.md <<'HEADER'
+          ## Revisão Completa do Especialista
+          
+          HEADER
           
           if [ -f ./all-results/result-linter-${{ github.run_id }}/result-linter.txt ]; then
-            BODY="$BODY\n### Análise de Padrões (Linter)\n"
-            BODY="$BODY$(cat ./all-results/result-linter-${{ github.run_id }}/result-linter.txt)"
+            echo "### Análise de Padrões (Linter)" >> comment.md
+            cat ./all-results/result-linter-${{ github.run_id }}/result-linter.txt >> comment.md
+            echo "" >> comment.md
           fi
           
           if [ -f ./all-results/result-logic-${{ github.run_id }}/result-logic.txt ]; then
-            BODY="$BODY\n\n### Análise de Lógica\n"
-            BODY="$BODY$(cat ./all-results/result-logic-${{ github.run_id }}/result-logic.txt)"
+            echo "" >> comment.md
+            echo "### Análise de Lógica" >> comment.md
+            cat ./all-results/result-logic-${{ github.run_id }}/result-logic.txt >> comment.md
+            echo "" >> comment.md
           fi
           
           if [ -f ./all-results/result-security-${{ github.run_id }}/result-security.txt ]; then
-            BODY="$BODY\n\n### Análise de Segurança\n"
-            BODY="$BODY$(cat ./all-results/result-security-${{ github.run_id }}/result-security.txt)"
+            echo "" >> comment.md
+            echo "### Análise de Segurança" >> comment.md
+            cat ./all-results/result-security-${{ github.run_id }}/result-security.txt >> comment.md
           fi
 
-          # Salva o corpo final para o próximo passo
-          echo "comment_body<<EOF" >> $GITHUB_ENV
-          echo "$BODY" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Salva o corpo final para o próximo passo usando heredoc
+          {
+            echo "comment_body<<EOF"
+            cat comment.md
+            echo "EOF"
+          } >> $GITHUB_ENV
 
       - name: Postar Comentário Único
         uses: actions/github-script@v7
