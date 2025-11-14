@@ -2,6 +2,9 @@ import os
 import sys
 from groq import Groq
 
+# Groq model (updated; previous model deprecated)
+MODEL_NAME = "llama-3.3-70b-versatile"
+
 # Prompt adicional para modo "audit" (sem persona explícita)
 AUDIT_PROMPT = """
 Contexto: Você é um Engenheiro de Qualidade Sênior realizando uma auditoria técnica de um Pull Request.
@@ -83,8 +86,8 @@ def main():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            # Modelo atualizado
-            model="llama-3.3-70b-versatile", 
+            # Modelo atualizado (o anterior foi descontinuado)
+            model=MODEL_NAME,
         )
         response_text = chat_completion.choices[0].message.content
         print(response_text)
